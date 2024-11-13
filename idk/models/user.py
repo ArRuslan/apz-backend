@@ -21,3 +21,12 @@ class User(Model):
 
     def check_password(self, password: str) -> bool:
         return bcrypt.checkpw(password.encode("utf8"), self.password.encode("utf8"))
+
+    def to_json(self) -> dict:
+        return {
+            "id": self.id,
+            "email": self.email,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "role": self.role,
+        }
