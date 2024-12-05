@@ -50,6 +50,11 @@ async def test_edit_sensor(client: AsyncClient):
     sensor = await Sensor.create(owner=user, city=city, name="test123")
 
     response = await client.patch(f"/sensors/{sensor.id}", headers={"authorization": token}, json={
+        "name": "new_name1",
+    })
+    assert response.status_code == 200, response.json()
+
+    response = await client.patch(f"/sensors/{sensor.id}", headers={"authorization": token}, json={
         "name": "new_name",
         "city": "test2",
     })
@@ -74,3 +79,27 @@ async def test_delete_sensor(client: AsyncClient):
 
     response = await client.get(f"/sensors/{sensor.id}", headers={"authorization": token})
     assert response.status_code == 404, response.json()
+
+
+@pytest.mark.asyncio
+async def test_create_sensor_unknown_city(client: AsyncClient):
+    token = await create_token()
+
+    response = await client.post("/sensors", headers={"authorization": token}, json={
+        "city": "test123",
+        "name": "test",
+    })
+    assert response.status_code == 404, response.json()
+
+
+@pytest.mark.asyncio
+async def test_edit_sensor_unknown_city(client: AsyncClient):
+    user = await create_user()
+    token = (await Session.create(user=user)).to_jwt()
+    city = await City.create(name="test", latitude=42.24, longitude=24.42)
+    sensor = await Sensor.create(owner=user, city=city, name="test123")
+
+    response = await client.patch(f"/sensors/{sensor.id}", headers={"authorization": token}, json={
+        "city": "unknown"
+    })
+    assert response.status_code == 404
