@@ -44,14 +44,17 @@ def calculate_zambretti_method(measurements: list[dict[str, str | float]], real_
 
     z = int(z)
 
+    next_temp = measurements[-1]["temperature"] + measurements[-1]["temperature"] * a
+
     return {
         "info_text": "TODO",
-        "temperature": 0,  # TODO: calculate temperature
+        "temperature": next_temp,
         "details": {
             "measurements_count": count,
             "measurements_db_count": real_count or count,
             "pressure_average": sum_y / count,
             "pressure_delta": pressure_delta,
+            "a": a,
             "p0": p0,
             "z": z,
         }
