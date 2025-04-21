@@ -1,19 +1,25 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from idk.dependencies import JwtAuthUserDep, SensorDep
 from idk.models import Sensor, City
 from idk.schemas.sensors import SensorInfo, AddSensorRequest, EditSensorRequest
+from idk.schemas.common import PaginationResponse, PaginationQuery
 from idk.utils.custom_exception import CustomMessageException
 
 router = APIRouter(prefix="/sensors")
 
 
-@router.get("", response_model=list[SensorInfo])
-async def get_user_sensors(user: JwtAuthUserDep):
-    return [
-        await sensor.to_json()
-        for sensor in await Sensor.filter(owner=user)
-    ]
+@router.get("", response_model=PaginationResponse[SensorInfo])
+async def get_user_sensors(user: JwtAuthUserDep, query: PaginationQuery = Query()):
+    return {
+        "count": await Sensor.filter(owner=user).count(),
+        "result": [
+            await sensor.to_json()
+            for sensor in await Sensor.filter(owner=user)\
+                .limit(query.page_size)\
+                .offset(query.page_size * (query.page - 1))
+        ],
+    }
 
 
 @router.post("", response_model=SensorInfo)
