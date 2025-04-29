@@ -12,7 +12,7 @@ async def test_create_sensor(client: AsyncClient):
 
     response = await client.get("/sensors", headers={"authorization": token})
     assert response.status_code == 200, response.json()
-    assert response.json() == []
+    assert response.json()["count"] == 0
 
     response = await client.post("/sensors", headers={"authorization": token}, json={
         "city": city.id,
@@ -24,9 +24,9 @@ async def test_create_sensor(client: AsyncClient):
 
     response = await client.get("/sensors", headers={"authorization": token})
     assert response.status_code == 200, response.json()
-    assert len(response.json()) == 1
-    assert response.json()[0]["city"]["id"] == city.id
-    assert response.json()[0]["name"] == "test"
+    assert response.json()["count"] == 1
+    assert response.json()["result"][0]["city"]["id"] == city.id
+    assert response.json()["result"][0]["name"] == "test"
 
 
 @pytest.mark.asyncio

@@ -77,6 +77,9 @@ async def get_sensor_forecast_zambretti(sensor: SensorDep):
         sensor=sensor, time__gt=(datetime.now(UTC) - timedelta(days=1))
     ).order_by("time")
 
+    if not measurements:
+        raise CustomMessageException("No measurements found for last day", 400)
+
     await sensor.fetch_related("owner")
 
     return calculate_zambretti_method([

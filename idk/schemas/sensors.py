@@ -16,5 +16,5 @@ class SensorInfo(BaseModel):
 
 
 class EditSensorRequest(AddSensorRequest):
-    city: str | None = None
+    city: str | int | None = None
     name: str | None = None
